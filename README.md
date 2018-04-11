@@ -27,3 +27,5 @@ manually.
     "url": "https://github.com/cobwebch/branch_cache.git"
 }
 ```
+
+Source of inspiration https://github.com/TYPO3-extensions/sm_clearcachecm. Thanks Steffen!
