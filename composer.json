@@ -1,0 +1,20 @@
+{
+    "name": "cobweb/branch-cache",
+    "type": "typo3-cms-extension",
+    "description": "Clears cache of a whole branch. One click is enough!",
+    "homepage": "...",
+    "license": ["GPL-2.0+"],
+    "keywords": ["TYPO3 CMS", "cache"],
+    "support": {
+        "issues": "..."
+    },
+    "autoload": {
+        "psr-4": {
+            "Cobweb\\BranchCache\\": "Classes/"
+        }
+    },
+    "replace": {
+        "branch_cache": "self.version",
+        "typo3-ter/branch-cache": "self.version"
+    }
+}

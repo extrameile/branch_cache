@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" target-language="fr" datatype="plaintext" original="messages" date="2018-04-27T13:30:13Z" product-name="branch_cache">
+		<header/>
+		<body>
+			<trans-unit id="clear.branch.cache">
+				<target>Effacer le cache de cette branche</target>
+			</trans-unit>
+			<trans-unit id="clear.branch.cache.error">
+				<target>Une erreur s'est produite lors de l'effacement du cache.</target>
+			</trans-unit>
+			<trans-unit id="clear.branch.cache.success">
+				<target>Le cache a été effacé avec succès.</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

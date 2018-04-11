@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2018-04-27T13:30:13Z" product-name="branch_cache">
+		<header/>
+		<body>
+			<trans-unit id="clear.branch.cache">
+				<source>Clear cache for this branch</source>
+			</trans-unit>
+			<trans-unit id="clear.branch.cache.error">
+				<source>Flushing the page cache of the branch failed.</source>
+			</trans-unit>
+			<trans-unit id="clear.branch.cache.success">
+				<source>Flushing the page cache of the branch succeeded.</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
