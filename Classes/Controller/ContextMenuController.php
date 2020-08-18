@@ -13,6 +13,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Tree\Pagetree\DataProvider;
 use TYPO3\CMS\Backend\Tree\Pagetree\PagetreeNode;
+use TYPO3\CMS\Backend\Tree\Repository\PageTreeRepository;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -27,57 +29,46 @@ class ContextMenuController
      * Clear branch cache action
      *
      * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
      * @return ResponseInterface
      * @throws \Exception
      */
-    public function clearBranchCacheAction(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    public function clearBranchCacheAction(ServerRequestInterface $request): ResponseInterface
     {
-        $nodeLimit = ($GLOBALS['TYPO3_CONF_VARS']['BE']['pageTree']['preloadLimit']) ? $GLOBALS['TYPO3_CONF_VARS']['BE']['pageTree']['preloadLimit'] : 999;
+        $pageId = $request->getQueryParams()['id'];
 
-        /* @var PagetreeNode $node */
-        $nodeData = ['id' => $request->getQueryParams()['id']];
-        $node = GeneralUtility::makeInstance(PagetreeNode::class, (array)$nodeData);
+        $pageTreeRepository = GeneralUtility::makeInstance(PageTreeRepository::class);
+        $pages = $pageTreeRepository->getTree($pageId);
 
-        // Get uid of actual page
-        $nodeUids = [
-            $node->getId()
-        ];
+        $nodeUids = $this->transformTreeStructureIntoFlatArray([$pages]);
+        $nodeUids = \array_unique($nodeUids);
 
-        // Get uids of subpages
-        /* @var DataProvider $dataProvider */
-        $dataProvider = GeneralUtility::makeInstance(DataProvider::class, $nodeLimit);
-        $nodeCollection = $dataProvider->getNodes($node);
-        $childNodeUids = $this->transformTreeStructureIntoFlatArray($nodeCollection);
+        $result = $this->performClearCache($nodeUids);
 
-        // Marge actual and child nodes
-        $nodeUids = array_merge($nodeUids, $childNodeUids);
+        $title = $this->getLabel('clear.branch.cache.' . ($result ? 'success' : 'error'));
 
-        $response->getBody()->write($this->performClearCache($nodeUids));
-        return $response;
+        return new \TYPO3\CMS\Core\Http\JsonResponse(['title' => $title]);
     }
 
     /**
      * Recursively transform the node collection from tree structure into a flat array
      *
-     * @param \TYPO3\CMS\Backend\Tree\TreeNodeCollection $nodeCollection A tree of node
+     * @param array $pages A tree of node
      * @param integer $level Recursion counter, used internaly
      * @return array Node uids of all child nodes
      */
-    protected function transformTreeStructureIntoFlatArray($nodeCollection, $level = 0): array
+    protected function transformTreeStructureIntoFlatArray(array $pages = [], $level = 0): array
     {
         if ($level > 99) {
             return [];
         }
 
         $nodeUids = [];
-        /** @var \TYPO3\CMS\Backend\Tree\TreeNode $childNode */
-        foreach ($nodeCollection as $childNode) {
-            $nodeUids[] = $childNode->getId();
-            if ($childNode->hasChildNodes()) {
-                $nodeUids = array_merge($nodeUids, $this->transformTreeStructureIntoFlatArray($childNode->getChildNodes(), $level + 1));
+        foreach ($pages as $childNode) {
+            $nodeUids[] = $childNode['uid'];
+            if (\is_array($childNode['_children']) && count($childNode['_children']) > 0) {
+                $nodeUids = array_merge($nodeUids, $this->transformTreeStructureIntoFlatArray($childNode['_children'], $level + 1));
             } else {
-                $nodeUids[] = $childNode->getId();
+                $nodeUids[] = $childNode['uid'];
             }
         }
 
@@ -111,5 +102,24 @@ class ContextMenuController
         }
 
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getLabel(string $id): string
+    {
+        $locallangFileAndPath = 'LLL:EXT:branch_cache/Resources/Private/Language/locallang.xlf:' . $id;
+        return $this->getLanguageService()->sL($locallangFileAndPath);
+    }
+
+    /**
+     * Returns LanguageService
+     *
+     * @return LanguageService
+     */
+    protected function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
     }
 }

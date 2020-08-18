@@ -21,9 +21,9 @@ define(function() {
 			url += '&id=' + uid;
 			$.ajax(url).always(function(result) {
 				if (result) {
-					top.TYPO3.Notification.success(TYPO3.l10n.localize('clear.branch.cache.success'));
+					top.TYPO3.Notification.success(result.title);
 				} else {
-					top.TYPO3.Notification.error(TYPO3.l10n.localize('clear.branch.cache.error'));
+					top.TYPO3.Notification.error(result.title);
 				}
 			});
 		}
