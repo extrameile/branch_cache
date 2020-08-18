@@ -100,7 +100,7 @@ class ItemProvider extends PageProvider
     protected function canClearCache(): bool
     {
         return !$this->isRoot()
-            && ($this->backendUser->isAdmin() || $this->backendUser->getTSConfigVal('options.clearCache.pages'));
+            && ($this->backendUser->isAdmin() || $this->backendUser->getTSConfig()['options.']['clearCache.']['pages']);
     }
 
 }
