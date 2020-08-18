@@ -54,10 +54,13 @@ class ItemProvider extends PageProvider
     {
         $this->initDisabledItems();
 
-        if (isset($items['clearCache'])) {
-            // renders an item based on the configuration from $this->itemsConfiguration
-            $localItems = $this->prepareItems($this->itemsConfiguration);
-            //finds a position of the item after which 'hello' item should be added
+        // renders an item based on the configuration from $this->itemsConfiguration
+        $localItems = $this->prepareItems($this->itemsConfiguration);
+
+        if (!isset($items['clearCache'])) {
+            $items = \array_merge($items, $localItems);
+        } else {
+            // add this entry after an existing clearCache entry
             $position = array_search('clearCache', array_keys($items), true);
 
             //slices array into two parts
@@ -67,7 +70,7 @@ class ItemProvider extends PageProvider
             // adds custom item in the correct position
             $items = $beginning + $localItems + $end;
         }
-        //passes array of items to the next item provider
+
         return $items;
     }
 
@@ -93,14 +96,14 @@ class ItemProvider extends PageProvider
     }
 
     /**
-     * Checks if the user has clear cache rights
+     * Defaults are not good for multisite setups, allowing options.clearCache.pages would add a global
+     * clear cache button for ALL pages, even if the user does not see them. Thus we omit this check and
+     * allow clearing the branch cache, that's what this extension is supposed to do
      *
      * @return bool
      */
     protected function canClearCache(): bool
     {
-        return !$this->isRoot()
-            && ($this->backendUser->isAdmin() || $this->backendUser->getTSConfig()['options.']['clearCache.']['pages']);
+        return true;
     }
-
 }
